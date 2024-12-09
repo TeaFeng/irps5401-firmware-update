@@ -1,0 +1,13 @@
+英飞凌IRPS5401电源芯片升级、固件打包工具,此代码基于linux并使用openssl 1.1.1f。
+使用说明：
+1、目的：英飞凌single image configuration file是txt格式的，直接用于升级时无法保证安全，本程序用于将txt格式的文件转换为bin格式，并加上CRC校验和RSA1024签名；
+2、编译条件：提前安装好openssl 1.1.1版本，使用gcc txt2bin.c -Wl,-Bstatic -lssl -lcrypto -pthread -Wl,-Bdynamic -ldl -o txt2bin 命令编译
+3、使用方法：
+	使用时需要有四个文件，分别是：
+	txt2bin：主程序，在编译目录下生成；
+	密钥：私钥和公钥分别为power_chip_private_key.pem和power_chip_public.pem，可以自己生成，使用RSA1024（update目录下的程序使用的也是RSA1024，需要匹配）
+	原始固件：英飞凌生成的txt文件，只支持单镜像模式的，暂不支持多镜像模式（mic文件）
+	使用命令:上述所有文件放在同一个目录（或者手动输入相关目录），“./txt2bin 电源固件txt文件”，bin文件会在当前目录中生成。
+4、生成文件名称
+	文件名称与固件版本相关， 固件版本见固件txt文件0x002A寄存器，一般的名称为“irps5401_U1_Vx.x.bin”
+	文件可以直接上传到BMC中进行升级。

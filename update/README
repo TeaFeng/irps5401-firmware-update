@@ -1,0 +1,6 @@
+本程序基于AMI BMC，用于英飞凌IRPS5401电源芯片的固件升级。
+1、文件说明：
+	PDKPowerChip.c：主文件，提供固件升级和版本查询接口，提供了其他芯片的拓展支持能力（其他芯片的暂无需求，暂不实现）。该文件放在AMI BMC的libipmipdk包中；
+	PDKPowerChip.h：头文件，对外提供的定义和函数。该文件放在AMI BMC的oempdk_dev包中；
+2、使用方法：
+	升级调用PDK_PowerChipFwUpdateTask传入芯片和固件信息启动新线程，程序会对传入的devinst和board_power_chip_info中的Devinst进行校验，两者一致才会进行升级。升级信息可以从全局变量power_chip_update中查询到。
