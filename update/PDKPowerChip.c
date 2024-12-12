@@ -733,6 +733,32 @@ int PDK_PowerChipFWVersionGet(INT8U Devinst, INT8U *FwRevStr, INT16U *ResLen, in
 	return CC_UNSPECIFIED_ERR;
 }
 
+/*****************************************************************************
+ * Function     : PDK_PowerChipFWVersionGetWithoutLock
+ * Description  : get current firmware version without lock 
+ * Params       : chip_info:power chip info struct;version:pointer to version
+ * Return       : 0: Success, -1: Failed
+ * Author       : TeaFeng
+ * Date         : 2024/11/21
+*****************************************************************************/
+int PDK_PowerChipFWVersionGetWithoutLock(INT8U Devinst, INT8U *FwRevStr, INT16U *ResLen, int BMCInst)
+{
+	INT8U data = 0;
+
+	if(NULL == FwRevStr)
+		return -1;
+	if( Devinst >= POWER_CHIP_COUNT_MAX || Devinst >= sizeof(board_power_chip_info)/sizeof(board_power_chip_info_t))
+	{
+		return CC_PARAM_OUT_OF_RANGE;
+	}
+	irps5401_info_t *chip_info = &board_power_chip_info[Devinst].chip_info;
+	if(0 == PDK_Irps5401FWVersionGet(*chip_info, &data))
+	{
+		*ResLen = snprintf(FwRevStr, POWER_CHIP_FW_VER_LEN, "V%u.%02u", data>>4, data&0x0f);
+		return CC_NORMAL;
+	}
+	return CC_UNSPECIFIED_ERR;
+}
 
 /*****************************************************************************
  * Function     : PDK_Irps5401VersionGet
@@ -1728,6 +1754,10 @@ int PDK_PowerChipUpdate(INT8U Devinst, INT32U mask)
 	TINFO("%s %s %d Dev [%d] exit update.. \n", __FILE__, __FUNCTION__, __LINE__, Devinst);	
 	TINFO("%s %s %d Dev [%d] enter verify.. \n", __FILE__, __FUNCTION__, __LINE__, Devinst);	
 	PDK_Irps5401Verify(FwUpdate);
+	if(FwUpdate->status == POWER_FW_UPDATE_STATUS_SUCCESS)
+	{
+		PDK_PostRedisMsgSetFwRev(ENTITY_POWER_CHIP, Devinst, 0);
+	}
 	sleep(2);
 	TINFO("%s %s %d Dev [%d] exit verify.. \n", __FILE__, __FUNCTION__, __LINE__, Devinst);	
 	FwUpdate->progress = 0;
