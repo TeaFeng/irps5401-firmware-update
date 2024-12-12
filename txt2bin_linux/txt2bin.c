@@ -387,8 +387,10 @@ int txt2bin(char *filename)
 	fclose(fp);
 	head->ImgSize = register_num * sizeof(data);
 	head->ImgCRC32 = CalculateCRC32(bin_buf + sizeof(power_chip_hd_t), head->ImgSize);
+	printf("image crc32 = 0x%x\n", head->ImgCRC32);
 	head->sha256_sig_offset = sizeof(power_chip_hd_t) + head->ImgSize;
 	head->HdrCRC32 = CalculateCRC32((unsigned char *)head, sizeof(power_chip_hd_t) - sizeof(head->HdrCRC32));
+	printf("head crc32 = 0x%x\n", head->HdrCRC32);
 	signature = (unsigned char *)(bin_buf + head->sha256_sig_offset);
 	ret = rsasignature(bin_buf, head->sha256_sig_offset, signature, &sig_len);
 	if(ret != 0)
@@ -397,9 +399,15 @@ int txt2bin(char *filename)
 		printf("Resolve txt file fail.\n");
 		return -1;
 	}
+	printf("signature: ");
+      	unsigned char* p = signature;
+      	for (i = 0; i < sig_len; i++, p++) {
+               	printf("%02x", *p);
+      	}
+	printf("\n");
 
 	memset(bin_name, 0, sizeof(bin_name));
-	snprintf(bin_name, sizeof(bin_name), "%s%d.%d.bin", POWER_FW, head->FwRev>>8,head->FwRev&0xff);
+	snprintf(bin_name, sizeof(bin_name), "%s%u.%02u.bin", POWER_FW, head->FwRev>>4,head->FwRev&0x0f);
 	FILE *fbin = fopen(bin_name, "wb");
 	if(NULL == fbin)
 	{
@@ -433,10 +441,10 @@ int main(int argc, char *argv[])
 	}
 
 	ret = vr_irps_fw_image_crc_verify(argv[1]);
-	if(ret != 0)
+	if (0 != ret)
 	{
-		printf("Input txt file %s CRC32 verify fail!!!!!\n", argv[1]);
-		return 0;
+		printf("Input firmware file %s CRC32 verify fail !!!!!!\n", argv[1]);
+		return -1;
 	}
 	return txt2bin(argv[1]);
 }
