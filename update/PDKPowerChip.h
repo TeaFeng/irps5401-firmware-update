@@ -71,7 +71,7 @@ extern pthread_t PowerChipFwUpdateThreadID[POWER_CHIP_COUNT_MAX];
 extern power_chip_update_t power_chip_update[POWER_CHIP_COUNT_MAX] ;
 extern void *PDK_PowerChipFwUpdateTask(void *pArg);
 extern int PDK_PowerChipFWVersionGet(INT8U Devinst, INT8U *FwRevStr, INT16U *ResLen, int BMCInst);
-
+extern int PDK_PowerChipFWVersionGetWithoutLock(INT8U Devinst, INT8U *FwRevStr, INT16U *ResLen, int BMCInst);
 #endif  /* __PDK_POWER_CHIP_H__*/
 
 
