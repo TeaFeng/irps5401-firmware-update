@@ -189,8 +189,8 @@ int vr_irps_fw_image_crc_verify(char* file)
 			return -1;
 		}
 
-		/* NOTE: Skip the "/r/n" at the end of line */
-		for (i = 0; i < (len - 2); i++)
+		/* 末尾有换行符，不参与CRC校验，linux去掉末尾1个字符，windows下不用去掉 */
+		for (i = 0; i < (len - 1); i++)
 		{
 			DoCRC32(&crc32, buf[i]);
 		}
@@ -351,7 +351,6 @@ int rsasignature(char* data, size_t data_len, char* signature, unsigned int* sig
 	memcpy(signature, p_signature, siglen);
 	*sig_len = siglen;
 
-	//OPENSSL_free(p_signature);
 	EVP_PKEY_CTX_free(pctx);
 	EVP_PKEY_free(pkey);
 
@@ -525,11 +524,10 @@ int txt2bin(char* filename)
 	}
 	printf("\n");
 	memset(bin_name, 0, sizeof(bin_name));
-	snprintf(bin_name, sizeof(bin_name), "%s%d.%d.bin", POWER_FW, head->FwRev >> 8, head->FwRev & 0xff);
+	snprintf(bin_name, sizeof(bin_name), "%s%u.%02u.bin", POWER_FW, head->FwRev >> 4, head->FwRev & 0x0f);
 	FILE* fbin = fopen(bin_name, "wb");
 	if (NULL == fbin)
 	{
-		fclose(fbin);
 		free(bin_buf);
 		perror("Error to create bin file");
 		return -1;
@@ -559,10 +557,10 @@ int main(int argc, char* argv[])
 	}
 
 	ret = vr_irps_fw_image_crc_verify(argv[1]);
-	if(ret != 0)
+	if (0 != ret)
 	{
-		printf("Input txt file %s CRC32 verify fail!!!!!\n", argv[1]);
-		return 0;
+		printf("Input firmware file %s CRC32 verify fail !!!!!!\n", argv[1]);
+		return -1;
 	}
 	return txt2bin(argv[1]);
 }
