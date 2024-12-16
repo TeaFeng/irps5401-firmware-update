@@ -1,4 +1,5 @@
 本项目用于英飞凌IRPS5401电源芯片在线升级，代码框架基于AMI BMC。
+Firmware updating program of Infineon power IC irps5401.
 
 
 主程序：
