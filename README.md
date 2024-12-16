@@ -13,3 +13,7 @@ txt2bin_linux与txt2bin_win两个目录分别适用于linux与windows系统，�
 代码当前都只支持单镜像固件，不支持多镜像固件（.mic文件）。
 txt2bin程序在linux下使用SHA256 + openssl 1.1.1版本进行签名，windows下使用SHA256 + openssl 3.4版本进行签名，因此编译这两个程序的host设备必须先安装这两个版本的openssl。
 两程序均使用静态链接，编译后生成的可执行程序不依赖具体的环境运行。
+
+
+Firmware updating program of Infineon power IC irps5401.
+Also supply firmware transform program,which transform txt file to bin file.
